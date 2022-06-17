@@ -10,7 +10,6 @@ require("dotenv").config();
 require("./database/database");
 require("./auth/passport/localAuth");
 
-
 const authRouter = require("./routes/auth.routes");
 
 //Middlewares
@@ -28,8 +27,7 @@ app.use(
     //Solo se guarda si la sesión se modifica
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl:
-        process.env.MONGO_STORE_URI
+      mongoUrl: process.env.MONGO_STORE_URI,
     }),
   })
 );

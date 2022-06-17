@@ -1,6 +1,10 @@
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
 const User = require("../../models/user.model");
+const signToken = require("../../utils/signJWT");
+
 //Metodo de autenticación, es llamado por la ruta
 //Recibe 2 parametros:
 //Un objeto con options y los datos recibidos del cliente
@@ -63,7 +67,24 @@ passport.use(
         return done(null, false, "Las contraseñas no coinciden");
       }
 
-      return done(null, user, "aah perro");
+      const signedToken = signToken(user);
+      return done(null, { ...user._doc, signedToken }, "aah perro");
     }
   )
+);
+
+const options = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: "PRIVATE_KEY",
+};
+
+passport.use(
+  new JwtStrategy(options, async (payload, done) => {
+    User.findOne({ _id: payload.sub })
+      .then((user) => {
+        if (user) return done(null, user);
+        else return done(null, false);
+      })
+      .catch((e) => done(e, null));
+  })
 );
