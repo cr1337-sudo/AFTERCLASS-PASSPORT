@@ -1,3 +1,4 @@
+
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 const JwtStrategy = require("passport-jwt").Strategy;
@@ -67,8 +68,7 @@ passport.use(
         return done(null, false, "Las contraseñas no coinciden");
       }
 
-      const signedToken = signToken(user);
-      return done(null, { ...user._doc, signedToken }, "aah perro");
+      return done(null, user, "aah perro");
     }
   )
 );

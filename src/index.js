@@ -7,13 +7,18 @@ const passport = require("passport");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
+const cors = require("cors");
 require("./database/database");
 require("./auth/passport/localAuth");
 
-const authRouter = require("./routes/auth.routes");
-
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
+    credentials: true,
+  })
+);
 //Middlewares
-
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -35,12 +40,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Settings
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 app.set("views", path.join(__dirname, "views"));
 app.engine("ejs", engine);
 app.set("view engine", "ejs");
 
 //Routes
+const authRouter = require("./routes/auth.routes");
 app.use("/", authRouter);
 
 //Start server;

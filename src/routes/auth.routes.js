@@ -2,6 +2,7 @@ const { Router } = require("express");
 const router = Router();
 const passport = require("passport");
 const { isAuthenticated } = require("../middlewares/auth");
+
 //Home
 router.get("/", (_, res) => {
   res.render("index");
@@ -12,14 +13,16 @@ router.get("/login", (req, res) => {
   res.render("./auth/login");
 });
 
-// Para trabajar con APIS!
+//Para trabajar con APIS!
 router.post("/login", (req, res) => {
   passport.authenticate(
     "local-login",
     { failureRedirect: "/error" },
     (error, user, options) => {
       if (user) {
-        return res.json(user);
+        req.logIn(user, () => {
+          return res.json(user);
+        });
       } else if (options) {
         return res.json(options);
       }
@@ -34,10 +37,11 @@ router.post("/login", (req, res) => {
 //     res.render("./main/profile");
 //   }
 // );
-// //Register
-// router.get("/register", (_, res) => {
-//   res.render("./auth/register");
-// });
+
+//Register
+router.get("/register", (_, res) => {
+  res.render("./auth/register");
+});
 
 router.post(
   "/register",
@@ -49,23 +53,19 @@ router.post(
   })
 );
 
-router.get("/logout",  isAuthenticated,(req, res) => {
+router.get("/logout", (req, res) => {
   res.render("./auth/logout");
 });
 
-router.post("/logout", (req, res) => {
+router.post("/logout", isAuthenticated, (req, res) => {
   req.session.destroy();
   res.redirect("/login");
 });
 
 //Profile
-router.get(
-  "/profile",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    res.render("./main/profile");
-  }
-);
+router.get("/profile", isAuthenticated, (req, res) => {
+  res.render("./main/profile");
+});
 
 //Error
 router.get("/error", (_, res) => {
